@@ -60,7 +60,7 @@ def stripe_migrate():
     df = pd.read_csv("customer_details.csv",parse_dates=date_cols,date_format="%d.%m.%Y")
     
     # Converting date column to epoch for stripe
-    df['Date subscription will start'] = df['Date subscription will start'].astype('int64')
+    df["start_date_epoch"] = df["Date subscription will start"].astype("int64")
     df["Coupon_ID"] = df["Coupon_months"].map(stripe_coupon_ids)
 
     for _,customer in df.iterrows():
@@ -81,7 +81,8 @@ def stripe_migrate():
         _ = stripe.Subscription.create(
             customer=stripe_customer["id"],
             items=[{"price":customer["Subscription Price ID	"]}],
-            currency='eur'
+            currency='eur',
+            current_period_start=customer["start_date_epoch"]
             )
     
     print('Successful Customer Upload!')
