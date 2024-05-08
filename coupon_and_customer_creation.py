@@ -2,7 +2,7 @@ import pandas as pd
 import stripe
 import api_keys
 
-def stripe_migrate():
+def coupon_and_customer_creation():
     """
     This program will import data from a csv file and create a list of customers 
     in Stripe. There is a sample .csv file available to see the format of the
@@ -18,6 +18,7 @@ def stripe_migrate():
     
     # All dates sent to Stripe must be epoch timestaps so this is a list of all columns to be parsed as dates
     date_cols = [7]
+    date_format = "%d.%m.%Y"
 
     ######################
     ## COUPONS CREATION ##
@@ -35,13 +36,13 @@ def stripe_migrate():
 
     coupons = dict(zip(coupon_durations,coupon_names))
     
-    # Creating coupons and pulling unique ID"s created by Stripe
+    # Creating coupons and pulling unique IDs created by Stripe
     for coupon in coupons:
         _ = stripe.Coupon.create(
             duration = "repeating",
             duration_in_months = coupon,
             percent_off = 100,
-            coupon_currency = "EUR",
+            currency = "eur",
             name = coupons[coupon]
             )
         
@@ -49,25 +50,28 @@ def stripe_migrate():
     stripe_coupon_list = stripe.Coupon.list()
 
     stripe_coupon_ids = dict()
-    for coupon in stripe_coupon_list["data"]:
-        stripe_coupon_ids[coupon["duration_in_months"]] = coupon["id"]
+
+    for stripe_coupon in stripe_coupon_list["data"]:
+        stripe_coupon_ids[stripe_coupon["duration_in_months"]] = stripe_coupon["id"]
 
     #######################
     ## CUSTOMER CREATION ##
     #######################
 
-    # Read and upload customer details including coupon IDs created in Stripe
-    df = pd.read_csv("customer_details.csv",parse_dates=date_cols,date_format="%d.%m.%Y")
-    
-    # Converting date column to epoch for stripe
+    # Importing customer list and converting dates
+    df = pd.read_csv("customer_details.csv",parse_dates=date_cols,date_format=date_format)
     df["start_date_epoch"] = df["Date subscription will start"].astype("int64")
-    df["Coupon_ID"] = df["Coupon_months"].map(stripe_coupon_ids)
+    
+    # Joining coupon IDs from Stripe
+    df["Coupon_ID"] = df["Coupon Months"].map(stripe_coupon_ids)
+
+    customer_ID_list = list()
 
     for _,customer in df.iterrows():
         stripe_customer = stripe.Customer.create(
             name=customer["Name"],
             email=customer["email"],
-            address={"country":customer["Billing contry"],
+            address={"country":customer["Billing country"],
                     "city":customer["City"],
                     "line1":customer["Address Line 1"],
                     #"line2":customer["Address Line 2],
@@ -75,17 +79,12 @@ def stripe_migrate():
             preferred_locales=[customer["Language"]],
             coupon = customer["Coupon_ID"]
             )
-        
-        # Linking subscriptions to customers using Stripe Customer ID
-        # NB Coupons have been added already
-        _ = stripe.Subscription.create(
-            customer=stripe_customer["id"],
-            items=[{"price":customer["Subscription Price ID	"]}],
-            currency='eur',
-            current_period_start=customer["start_date_epoch"]
-            )
+                       
+        customer_ID_list.append(stripe_customer["id"])
     
+    df['Customer_id'] = customer_ID_list
+    df.to_csv('customer_details_updated.csv')
     print('Successful Customer Upload!')
 
 if __name__ == "__main__":
-    stripe_migrate()
+    coupon_and_customer_creation()
