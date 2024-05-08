@@ -39,9 +39,8 @@ def subscription_creation():
             customer=customer["id"],
             items=[{"price":customer["Price_ID"]}],
             currency='eur',
-            current_period_start=customer["start_date_epoch"],
-            discounts=[{"coupon":customer["Coupon_ID"]}]
-        )
+            current_period_start=customer["start_date_epoch"]
+            )
 
 if __name__ == "__main__":
     subscription_creation()
