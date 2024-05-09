@@ -61,7 +61,7 @@ def coupon_and_customer_creation():
     # Importing customer list and converting dates
     df = pd.read_csv("customer_details.csv",parse_dates=date_cols,date_format=date_format)
     
-    df["start_date_epoch"] = df["Date subscription will start"].astype("int64") / 10**9
+    df["start_date_epoch"] = (df["Date subscription will start"] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
     
     # Joining coupon IDs from Stripe
     df["Coupon_ID"] = df["Coupon Months"].map(stripe_coupon_ids)
