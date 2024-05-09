@@ -35,12 +35,12 @@ def subscription_creation():
 
     for _,customer in df.iterrows():
 
-        _ = stripe.Subscription.create(
-            customer=customer["id"],
+        _ = stripe.SubscriptionSchedule.create(
+            customer=customer["Customer_ID"],
             items=[{"price":customer["Price_ID"]}],
-            currency='eur',
-            current_period_start=customer["start_date_epoch"]
-            )
+            currency="eur",
+            current_phase={"start_date":customer["start_date_epoch"]}
+        )
 
 if __name__ == "__main__":
     subscription_creation()

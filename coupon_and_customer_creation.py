@@ -1,6 +1,7 @@
 import pandas as pd
 import stripe
 import api_keys
+from tkinter.filedialog import askopenfilename
 
 def coupon_and_customer_creation():
     """
@@ -17,7 +18,7 @@ def coupon_and_customer_creation():
     stripe.api_key = api_keys.stripe_api_key
     
     # All dates sent to Stripe must be epoch timestaps so this is a list of all columns to be parsed as dates
-    date_cols = [7]
+    date_cols = [4]
     date_format = "%d.%m.%Y"
 
     ######################
@@ -59,7 +60,8 @@ def coupon_and_customer_creation():
     #######################
 
     # Importing customer list and converting dates
-    df = pd.read_csv("customer_details.csv",parse_dates=date_cols,date_format=date_format)
+    filename = askopenfilename()
+    df = pd.read_csv(filename,parse_dates=date_cols,date_format=date_format)
     
     df["start_date_epoch"] = (df["Date subscription will start"] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
     
@@ -84,7 +86,7 @@ def coupon_and_customer_creation():
         customer_ID_list.append(stripe_customer["id"])
     
     df['Customer_ID'] = customer_ID_list
-    df.to_csv('customer_details_updated.csv')
+    df.to_csv('data/customer_details_updated.csv')
     print('Successful Customer Upload!')
 
 if __name__ == "__main__":
