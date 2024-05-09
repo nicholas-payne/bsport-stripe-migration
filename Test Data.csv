@@ -1,3 +1,3 @@
-Name,email,Billing country,Language,Subscription ID,Subscription Price ID,Customer Coupon ID,Date subscription will start,Address Line 1,Post code,City,IBAN,Coupon Months,Product Name
-Taylor Swift,taylor@erastour.com,DE,German,prod_Q1ZUpSCoC0abRG,price_1PBWLN2M6UEsord1wzEyXSIK,SQofG6HA,01.06.2024,Billionaires Row 3,12345,Munich,DE55500105175375652875,1,product1
-Beyonce Knowles,beyonce@renaissance.com,DE,English,prod_Q1ifNDWifEkj8a,price_1PBfE72M6UEsord1ejWpov0e,VXTbVnIx,01.06.2024,Bee Hive Lane 8,88776,Hamburg,DE62500105173438132166,10,product2
+﻿Name,email,Billing country,Language,Date subscription will start,Address Line 1,Post code,City,Coupon Months,Product Name
+Taylor Swift,taylor@erastour.com,DE,German,01.06.2024,Billionaires Row 3,12345,Munich,1,product1
+Beyonce Knowles,beyonce@renaissance.com,DE,English,01.06.2024,Bee Hive Lane 8,88776,Hamburg,10,product2
