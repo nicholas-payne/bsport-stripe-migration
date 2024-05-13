@@ -37,9 +37,10 @@ def subscription_creation():
 
         _ = stripe.SubscriptionSchedule.create(
             customer=customer["Customer_ID"],
-            items=[{"price":customer["Price_ID"]}],
-            currency="eur",
-            current_phase={"start_date":customer["start_date_epoch"]}
+            start_date=customer["start_date_epoch"],
+            end_behaviour="release",
+            phases=[{"items":[{"price":customer["Price_ID"],"quantity":1}],
+                     "iterations":12}]
         )
 
 if __name__ == "__main__":
