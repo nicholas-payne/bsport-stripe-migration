@@ -48,7 +48,7 @@ def coupon_and_customer_creation():
             )
         
     # Retrieve Stripe coupon IDs generated via Stripe
-    stripe_coupon_list = stripe.Coupon.list()
+    stripe_coupon_list = stripe.Coupon.list(limit=20) #default limit is 10 coupons
 
     stripe_coupon_ids = dict()
 
@@ -71,22 +71,32 @@ def coupon_and_customer_creation():
     customer_ID_list = list()
 
     for _,customer in df.iterrows():
-        stripe_customer = stripe.Customer.create(
-            name=customer["Name"],
-            email=customer["email"],
-            address={"country":customer["Billing country"],
-                    "city":customer["City"],
-                    "line1":customer["Address Line 1"],
-                    #"line2":customer["Address Line 2],
-                    "postal_code":customer["Post code"]},
-            preferred_locales=[customer["Language"]],
-            coupon = customer["Coupon_ID"]
-            )
+        if pd.isnull(customer['Coupon Months']) == True:
+            stripe_customer = stripe.Customer.create(
+                name=customer["Name"],
+                email=customer["email"],
+                address={"country":customer["Billing country"],
+                        "city":customer["City"],
+                        "line1":customer["Address Line 1"],
+                        "postal_code":customer["Post code"]},
+                preferred_locales=[customer["Language"]]
+                )
+        else:
+            stripe_customer = stripe.Customer.create(
+                name=customer["Name"],
+                email=customer["email"],
+                address={"country":customer["Billing country"],
+                        "city":customer["City"],
+                        "line1":customer["Address Line 1"],
+                        "postal_code":customer["Post code"]},
+                preferred_locales=[customer["Language"]],
+                coupon = customer["Coupon_ID"]
+                )
                        
         customer_ID_list.append(stripe_customer["id"])
     
     df['Customer_ID'] = customer_ID_list
-    df.to_csv('data/customer_details_updated.csv')
+    df.to_csv('customer_details_updated.csv')
     print('Successful Customer Upload!')
 
 if __name__ == "__main__":
